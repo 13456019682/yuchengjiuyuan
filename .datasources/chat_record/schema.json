@@ -1,0 +1,33 @@
+{
+  "name": "chat_record",
+  "title": "聊天记录表",
+  "schemas": [
+    {
+      "name": "chat_id",
+      "title": "聊天 ID",
+      "type": "String"
+    },
+    {
+      "name": "order_id",
+      "title": "订单 ID",
+      "type": "String"
+    },
+    {
+      "name": "sender_type",
+      "title": "发送方",
+      "type": "String",
+      "enum": ["车主", "师傅"]
+    },
+    {
+      "name": "content",
+      "title": "内容",
+      "type": "String"
+    },
+    {
+      "name": "timestamp",
+      "title": "时间戳",
+      "type": "DateTime",
+      "format": "timestamp-ms"
+    }
+  ]
+}

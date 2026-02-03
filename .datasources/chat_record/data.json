@@ -1,0 +1,22 @@
+[
+  {
+    "_id": "1",
+    "chat_id": "chat_001",
+    "order_id": "order_001",
+    "sender_type": "车主",
+    "content": "我的车需要搭电服务，请问您现在有空吗？",
+    "timestamp": 1770007146731,
+    "createdAt": 1770007146731,
+    "updatedAt": 1770007146731
+  },
+  {
+    "_id": "2",
+    "chat_id": "chat_002",
+    "order_id": "order_001",
+    "sender_type": "师傅",
+    "content": "可以的，请提供您的具体位置。",
+    "timestamp": 1770007146732,
+    "createdAt": 1770007146732,
+    "updatedAt": 1770007146732
+  }
+]

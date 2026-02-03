@@ -1,0 +1,24 @@
+[
+  {
+    "_id": "1",
+    "order_id": "order_001",
+    "car_owner_id": "user_001",
+    "mechanic_id": "user_002",
+    "service_type": "搭电",
+    "order_status": "待接单",
+    "health_confirmation": false,
+    "createdAt": 1770007146731,
+    "updatedAt": 1770007146731
+  },
+  {
+    "_id": "2",
+    "order_id": "order_002",
+    "car_owner_id": "user_003",
+    "mechanic_id": "user_004",
+    "service_type": "换胎",
+    "order_status": "已接单",
+    "health_confirmation": true,
+    "createdAt": 1770007146732,
+    "updatedAt": 1770007146732
+  }
+]

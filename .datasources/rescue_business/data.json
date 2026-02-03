@@ -1,0 +1,29 @@
+[
+  {
+    "_id": "1",
+    "business_id": "business_001",
+    "business_name": "补胎",
+    "is_enabled": true,
+    "sort_order": 1,
+    "createdAt": 1770007146731,
+    "updatedAt": 1770007146731
+  },
+  {
+    "_id": "2",
+    "business_id": "business_002",
+    "business_name": "换胎",
+    "is_enabled": true,
+    "sort_order": 2,
+    "createdAt": 1770007146732,
+    "updatedAt": 1770007146732
+  },
+  {
+    "_id": "3",
+    "business_id": "business_003",
+    "business_name": "搭电",
+    "is_enabled": true,
+    "sort_order": 3,
+    "createdAt": 1770007146733,
+    "updatedAt": 1770007146733
+  }
+]

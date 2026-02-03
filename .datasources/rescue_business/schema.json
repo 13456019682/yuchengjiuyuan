@@ -1,0 +1,27 @@
+{
+  "name": "rescue_business",
+  "title": "救援业务配置表",
+  "schemas": [
+    {
+      "name": "business_id",
+      "title": "业务 ID",
+      "type": "String"
+    },
+    {
+      "name": "business_name",
+      "title": "业务名称",
+      "type": "String"
+    },
+    {
+      "name": "is_enabled",
+      "title": "是否启用",
+      "type": "Boolean",
+      "default": true
+    },
+    {
+      "name": "sort_order",
+      "title": "排序顺序",
+      "type": "Number"
+    }
+  ]
+}

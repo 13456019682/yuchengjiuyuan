@@ -1,0 +1,26 @@
+[
+  {
+    "_id": "1",
+    "user_id": "user_001",
+    "identity_type": "车主",
+    "signed_car_owner_agreement": true,
+    "signed_master_agreement": false,
+    "qualification_declaration": true,
+    "health_declaration": true,
+    "medical_report_status": "审核通过",
+    "createdAt": 1770007146731,
+    "updatedAt": 1770007146731
+  },
+  {
+    "_id": "2",
+    "user_id": "user_002",
+    "identity_type": "师傅",
+    "signed_car_owner_agreement": false,
+    "signed_master_agreement": true,
+    "qualification_declaration": true,
+    "health_declaration": true,
+    "medical_report_status": "未上传",
+    "createdAt": 1770007146732,
+    "updatedAt": 1770007146732
+  }
+]

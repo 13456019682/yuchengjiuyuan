@@ -1,0 +1,38 @@
+{
+  "name": "order_info",
+  "title": "订单表",
+  "schemas": [
+    {
+      "name": "order_id",
+      "title": "订单 ID",
+      "type": "String"
+    },
+    {
+      "name": "car_owner_id",
+      "title": "车主 ID",
+      "type": "String"
+    },
+    {
+      "name": "mechanic_id",
+      "title": "师傅 ID",
+      "type": "String"
+    },
+    {
+      "name": "service_type",
+      "title": "服务类型",
+      "type": "String",
+      "enum": ["搭电", "换胎", "补胎", "拖车"]
+    },
+    {
+      "name": "order_status",
+      "title": "订单状态",
+      "type": "String",
+      "enum": ["待接单", "已接单", "已完成", "已取消"]
+    },
+    {
+      "name": "health_confirmation",
+      "title": "接单健康确认记录",
+      "type": "Boolean"
+    }
+  ]
+}

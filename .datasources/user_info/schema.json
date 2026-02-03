@@ -1,0 +1,41 @@
+{
+  "name": "user_info",
+  "title": "用户信息表",
+  "schemas": [
+    {
+      "name": "user_id",
+      "title": "用户 ID",
+      "type": "String"
+    },
+    {
+      "name": "identity_type",
+      "title": "身份类型",
+      "type": "String"
+    },
+    {
+      "name": "signed_car_owner_agreement",
+      "title": "已签署车主协议",
+      "type": "Boolean"
+    },
+    {
+      "name": "signed_master_agreement",
+      "title": "已签署师傅协议",
+      "type": "Boolean"
+    },
+    {
+      "name": "qualification_declaration",
+      "title": "资质声明勾选",
+      "type": "Boolean"
+    },
+    {
+      "name": "health_declaration",
+      "title": "健康声明勾选",
+      "type": "Boolean"
+    },
+    {
+      "name": "medical_report_status",
+      "title": "体检报告状态",
+      "type": "String"
+    }
+  ]
+}
