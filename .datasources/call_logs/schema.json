@@ -1,0 +1,73 @@
+{
+  "name": "call_logs",
+  "title": "通话记录日志表",
+  "description": "记录虚拟号码通话全链路信息，支持订单/用户/号码维度追溯",
+  "schemas": [
+    {
+      "name": "call_id",
+      "title": "通话唯一标识",
+      "type": "String",
+      "remarks": "全局唯一，关联单次通话的发起/结束全链路"
+    },
+    {
+      "name": "order_id",
+      "title": "关联订单ID",
+      "type": "String",
+      "remarks": "对应rescue_business.order_id，用于关联订单和通话记录"
+    },
+    {
+      "name": "virtual_phone",
+      "title": "虚拟电话号码",
+      "type": "String",
+      "remarks": "对应rescue_business.virtual_phone"
+    },
+    {
+      "name": "call_start_time",
+      "title": "通话开始时间",
+      "type": "DateTime",
+      "format": "timestamp-ms",
+      "remarks": "通话发起时的毫秒级时间戳"
+    },
+    {
+      "name": "call_end_time",
+      "title": "通话结束时间",
+      "type": "DateTime",
+      "format": "timestamp-ms",
+      "default": null,
+      "remarks": "通话挂断/失败时的毫秒级时间戳，未结束时为null"
+    },
+    {
+      "name": "call_duration",
+      "title": "通话时长（秒）",
+      "type": "Number",
+      "default": 0,
+      "remarks": "由call_end_time - call_start_time计算得出，向下取整"
+    },
+    {
+      "name": "call_status",
+      "title": "通话状态",
+      "type": "String",
+      "enum": ["success", "failed", "missed", "busy"],
+      "remarks": "success-接通成功/failed-呼叫失败/missed-无人接听/busy-被叫占线"
+    },
+    {
+      "name": "caller_id",
+      "title": "主叫方标识",
+      "type": "String",
+      "remarks": "小程序用户openid/平台用户UID"
+    },
+    {
+      "name": "callee_id",
+      "title": "被叫方标识",
+      "type": "String",
+      "remarks": "被叫方真实号码/平台商户UID"
+    },
+    {
+      "name": "call_metadata",
+      "title": "通话元数据",
+      "type": "Object",
+      "default": {},
+      "remarks": "预留扩展字段，存储录音链接、通话备注等额外信息"
+    }
+  ]
+}
