@@ -1,1 +1,9 @@
-[The data is outdated; Use the MultiRead tool to obtain the latest version.]
+{
+  "name": "get_pending_orders",
+  "version": "1.0.0",
+  "description": "获取待接单订单列表，支持分页",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

@@ -1,1 +1,9 @@
-[The data is outdated; Use the MultiRead tool to obtain the latest version.]
+{
+  "name": "update_order_status",
+  "version": "1.0.0",
+  "description": "更新订单状态，支持接单、完成、取消操作",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}
