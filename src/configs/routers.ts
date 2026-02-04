@@ -8,6 +8,7 @@ import MASTER/SIGNUP from '../pages/master/signup.jsx';
 import MASTER/ORDER_WAIT from '../pages/master/order-wait.jsx';
 import MASTER/ORDER_DETAIL from '../pages/master/order-detail.jsx';
 import ADMIN/EXPORT_CALL-LOGS from '../pages/admin/export-call-logs.jsx';
+import TEST/VALIDATION from '../pages/test/validation.jsx';
 export const routers = [{
   id: "blank",
   component: BLANK
@@ -38,4 +39,7 @@ export const routers = [{
 }, {
   id: "admin/export-call-logs",
   component: ADMIN/EXPORT_CALL-LOGS
+}, {
+  id: "test/validation",
+  component: TEST/VALIDATION
 }]

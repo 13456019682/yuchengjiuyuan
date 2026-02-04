@@ -99,7 +99,14 @@ export default function OrderWait(props) {
           description: '您已成功接单，请尽快前往救援地点',
           variant: 'default'
         });
-        fetchPendingOrders(); // 刷新列表
+        // 跳转到订单详情页面
+        props.$w.utils.navigateTo({
+          pageId: 'master/order-detail',
+          params: {
+            orderId: orderId,
+            toAccept: '1'
+          }
+        });
       } else {
         toast({
           title: '接单失败',
