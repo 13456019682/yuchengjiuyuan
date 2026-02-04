@@ -1,1 +1,10 @@
-[The data is outdated; Use the MultiRead tool to obtain the latest version.]
+{
+  "name": "export_call_log_excel",
+  "version": "1.0.0",
+  "description": "导出通话记录为Excel",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3",
+    "xlsx": "^0.18.5"
+  }
+}

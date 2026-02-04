@@ -9,6 +9,7 @@ import MASTER/ORDER_WAIT from '../pages/master/order-wait.jsx';
 import MASTER/ORDER_DETAIL from '../pages/master/order-detail.jsx';
 import ADMIN/EXPORT_CALL-LOGS from '../pages/admin/export-call-logs.jsx';
 import TEST/VALIDATION from '../pages/test/validation.jsx';
+import TEST/VALIDATION_REPORT from '../pages/test/validation-report.jsx';
 export const routers = [{
   id: "blank",
   component: BLANK
@@ -42,4 +43,7 @@ export const routers = [{
 }, {
   id: "test/validation",
   component: TEST/VALIDATION
+}, {
+  id: "test/validation-report",
+  component: TEST/VALIDATION_REPORT
 }]
