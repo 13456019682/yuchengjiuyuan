@@ -3,10 +3,11 @@ import React, { useState, useEffect } from 'react';
 // @ts-ignore;
 import { useToast } from '@/components/ui';
 // @ts-ignore;
-import { Phone, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { Phone, Clock, CheckCircle, XCircle, AlertCircle, Filter } from 'lucide-react';
 
 import LoadingSpinner from '@/components/LoadingSpinner';
 import PaginationControl from '@/components/Pagination';
+import { ErrorBoundaryWrapper } from '@/components/ErrorBoundary';
 export default function OwnerOrderDetail(props) {
   const {
     toast
@@ -17,7 +18,28 @@ export default function OwnerOrderDetail(props) {
   const [callLogsLoading, setCallLogsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [filterCondition, setFilterCondition] = useState({
+    startTime: '',
+    endTime: '',
+    callStatus: ''
+  });
+  const [showFilter, setShowFilter] = useState(false);
   const orderId = props.$w?.page?.dataset?.params?.orderId;
+
+  // 重置通话记录加载
+  const resetCallLogs = () => {
+    setCallLogs([]);
+    setCurrentPage(1);
+    setTotalPages(1);
+    setFilterCondition({
+      startTime: '',
+      endTime: '',
+      callStatus: ''
+    });
+    if (orderId) {
+      fetchCallLogs(1);
+    }
+  };
 
   // 获取订单详情
   const fetchOrderDetail = async () => {
@@ -57,8 +79,8 @@ export default function OwnerOrderDetail(props) {
     }
   };
 
-  // 获取通话记录（带分页）
-  const fetchCallLogs = async page => {
+  // 获取通话记录（带分页和筛选）
+  const fetchCallLogs = async (page, filter = {}) => {
     if (!orderId) return;
     setCallLogsLoading(true);
     const limit = 10;
@@ -69,7 +91,10 @@ export default function OwnerOrderDetail(props) {
         data: {
           orderId,
           limit,
-          offset
+          offset,
+          startTime: filter.startTime || null,
+          endTime: filter.endTime || null,
+          callStatus: filter.callStatus || null
         }
       });
       if (res.result?.success) {
@@ -98,7 +123,25 @@ export default function OwnerOrderDetail(props) {
   const handlePageChange = page => {
     if (page < 1 || page > totalPages || page === currentPage) return;
     setCurrentPage(page);
-    fetchCallLogs(page);
+    fetchCallLogs(page, filterCondition);
+  };
+
+  // 筛选提交函数
+  const handleFilterSubmit = () => {
+    // 重置分页为第1页，重新加载数据
+    setCurrentPage(1);
+    fetchCallLogs(1, filterCondition);
+  };
+
+  // 重置筛选条件
+  const handleFilterReset = () => {
+    setFilterCondition({
+      startTime: '',
+      endTime: '',
+      callStatus: ''
+    });
+    setCurrentPage(1);
+    fetchCallLogs(1, {});
   };
 
   // 初始化加载
@@ -184,104 +227,161 @@ export default function OwnerOrderDetail(props) {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 mt-6 space-y-6">
-        {/* 虚拟号码信息卡片 */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-800 flex items-center">
-              <Phone className="w-5 h-5 mr-2 text-blue-500" />
-              虚拟号码信息
-            </h2>
+        {/* 虚拟号码信息卡片 - 使用 ErrorBoundary 包裹 */}
+        <ErrorBoundaryWrapper onReset={resetCallLogs}>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-gray-800 flex items-center">
+                <Phone className="w-5 h-5 mr-2 text-blue-500" />
+                虚拟号码信息
+              </h2>
+            </div>
+            
+            {order?.virtual_phone ? <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                  <span className="text-sm text-gray-600">虚拟号码</span>
+                  <span className="text-lg font-semibold text-blue-600">{order.virtual_phone}</span>
+                </div>
+                
+                {order.virtual_phone_expire_time && <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <span className="text-sm text-gray-600 flex items-center">
+                      <Clock className="w-4 h-4 mr-2" />
+                      有效期至
+                    </span>
+                    <span className="text-sm font-medium text-gray-800">
+                      {formatTime(order.virtual_phone_expire_time)}
+                    </span>
+                  </div>}
+              </div> : <div className="text-center py-8 text-gray-500">
+                <Phone className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                <p>暂无虚拟号码信息</p>
+              </div>}
           </div>
-          
-          {order?.virtual_phone ? <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                <span className="text-sm text-gray-600">虚拟号码</span>
-                <span className="text-lg font-semibold text-blue-600">{order.virtual_phone}</span>
+        </ErrorBoundaryWrapper>
+
+        {/* 通话记录卡片 - 使用 ErrorBoundary 包裹 */}
+        <ErrorBoundaryWrapper onReset={resetCallLogs}>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-gray-800 flex items-center">
+                <Clock className="w-5 h-5 mr-2 text-blue-500" />
+                通话记录
+              </h2>
+              <div className="flex items-center space-x-4">
+                <span className="text-sm text-gray-500">
+                  共 {totalPages * 10} 条记录
+                </span>
+                <button onClick={() => setShowFilter(!showFilter)} className="flex items-center space-x-1 px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                  <Filter className="w-4 h-4" />
+                  <span>筛选</span>
+                </button>
               </div>
-              
-              {order.virtual_phone_expire_time && <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <span className="text-sm text-gray-600 flex items-center">
-                    <Clock className="w-4 h-4 mr-2" />
-                    有效期至
-                  </span>
-                  <span className="text-sm font-medium text-gray-800">
-                    {formatTime(order.virtual_phone_expire_time)}
-                  </span>
-                </div>}
-            </div> : <div className="text-center py-8 text-gray-500">
-              <Phone className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-              <p>暂无虚拟号码信息</p>
-            </div>}
-        </div>
+            </div>
 
-        {/* 通话记录卡片 */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-800 flex items-center">
-              <Clock className="w-5 h-5 mr-2 text-blue-500" />
-              通话记录
-            </h2>
-            <span className="text-sm text-gray-500">
-              共 {totalPages * 10} 条记录
-            </span>
-          </div>
+            {/* 筛选组件 */}
+            {showFilter && <div className="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <h3 className="text-sm font-medium text-gray-700 mb-3">筛选条件</h3>
+                <div className="space-y-3">
+                  {/* 通话状态筛选 */}
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-1">通话状态</label>
+                    <select value={filterCondition.callStatus} onChange={e => setFilterCondition({
+                  ...filterCondition,
+                  callStatus: e.target.value
+                })} className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                      <option value="">全部通话状态</option>
+                      <option value="success">通话成功</option>
+                      <option value="failed">通话失败</option>
+                      <option value="missed">未接听</option>
+                      <option value="busy">被叫占线</option>
+                    </select>
+                  </div>
+                  
+                  {/* 时间范围筛选 */}
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-1">时间范围</label>
+                    <div className="flex items-center space-x-2">
+                      <input type="datetime-local" value={filterCondition.startTime} onChange={e => setFilterCondition({
+                    ...filterCondition,
+                    startTime: e.target.value
+                  })} className="flex-1 border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                      <span className="text-gray-500">至</span>
+                      <input type="datetime-local" value={filterCondition.endTime} onChange={e => setFilterCondition({
+                    ...filterCondition,
+                    endTime: e.target.value
+                  })} className="flex-1 border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    </div>
+                  </div>
+                  
+                  {/* 操作按钮 */}
+                  <div className="flex space-x-2">
+                    <button onClick={handleFilterSubmit} className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg text-sm hover:bg-blue-700 transition-colors">
+                      筛选
+                    </button>
+                    <button onClick={handleFilterReset} className="flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-lg text-sm hover:bg-gray-300 transition-colors">
+                      重置
+                    </button>
+                  </div>
+                </div>
+              </div>}
 
-          {callLogsLoading ? <LoadingSpinner size="md" color="primary" /> : callLogs.length > 0 ? <>
-              {/* 通话记录列表 */}
-              <div className="space-y-3">
-                {callLogs.map(log => {
-              const statusInfo = getCallStatusInfo(log.call_status);
-              const StatusIcon = statusInfo.icon;
-              return <div key={log.call_id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-center space-x-2">
-                          <StatusIcon className={`w-5 h-5 ${statusInfo.color}`} />
-                          <span className={`font-medium ${statusInfo.color}`}>
-                            {statusInfo.text}
-                          </span>
-                        </div>
-                        <span className="text-xs text-gray-400">
-                          {formatTime(log.call_start_time)}
-                        </span>
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <span className="text-gray-500">主叫方：</span>
-                          <span className="text-gray-800 ml-1">{log.caller_id || '-'}</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-500">被叫方：</span>
-                          <span className="text-gray-800 ml-1">{log.callee_id || '-'}</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-500">通话时长：</span>
-                          <span className="text-gray-800 ml-1">{formatDuration(log.call_duration)}</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-500">虚拟号码：</span>
-                          <span className="text-gray-800 ml-1">{log.virtual_phone || '-'}</span>
-                        </div>
-                      </div>
-                      
-                      {log.call_end_time && <div className="mt-3 pt-3 border-t border-gray-100">
+            {callLogsLoading ? <LoadingSpinner size="md" color="primary" /> : callLogs.length > 0 ? <>
+                {/* 通话记录列表 */}
+                <div className="space-y-3">
+                  {callLogs.map(log => {
+                const statusInfo = getCallStatusInfo(log.call_status);
+                const StatusIcon = statusInfo.icon;
+                return <div key={log.call_id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex items-center space-x-2">
+                            <StatusIcon className={`w-5 h-5 ${statusInfo.color}`} />
+                            <span className={`font-medium ${statusInfo.color}`}>
+                              {statusInfo.text}
+                            </span>
+                          </div>
                           <span className="text-xs text-gray-400">
-                            结束时间：{formatTime(log.call_end_time)}
+                            {formatTime(log.call_start_time)}
                           </span>
-                        </div>}
-                    </div>;
-            })}
-              </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <span className="text-gray-500">主叫方：</span>
+                            <span className="text-gray-800 ml-1">{log.caller_id || '-'}</span>
+                          </div>
+                          <div>
+                            <span className="text-gray-500">被叫方：</span>
+                            <span className="text-gray-800 ml-1">{log.callee_id || '-'}</span>
+                          </div>
+                          <div>
+                            <span className="text-gray-500">通话时长：</span>
+                            <span className="text-gray-800 ml-1">{formatDuration(log.call_duration)}</span>
+                          </div>
+                          <div>
+                            <span className="text-gray-500">虚拟号码：</span>
+                            <span className="text-gray-800 ml-1">{log.virtual_phone || '-'}</span>
+                          </div>
+                        </div>
+                        
+                        {log.call_end_time && <div className="mt-3 pt-3 border-t border-gray-100">
+                            <span className="text-xs text-gray-400">
+                              结束时间：{formatTime(log.call_end_time)}
+                            </span>
+                          </div>}
+                      </div>;
+              })}
+                </div>
 
-              {/* 分页组件 */}
-              {totalPages > 1 && <div className="mt-6 flex justify-center">
-                  <PaginationControl currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
-                </div>}
-            </> : <div className="text-center py-8 text-gray-500">
-              <Clock className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-              <p>暂无通话记录</p>
-            </div>}
-        </div>
+                {/* 分页组件 */}
+                {totalPages > 1 && <div className="mt-6 flex justify-center">
+                    <PaginationControl currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
+                  </div>}
+              </> : <div className="text-center py-8 text-gray-500">
+                <Clock className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                <p>暂无通话记录</p>
+              </div>}
+          </div>
+        </ErrorBoundaryWrapper>
       </div>
     </div>;
 }
