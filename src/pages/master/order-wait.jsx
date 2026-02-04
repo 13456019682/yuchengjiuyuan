@@ -22,10 +22,13 @@ export default function OrderWait(props) {
       setLoading(true);
       const res = await props.$w.cloud.callFunction({
         name: 'get_pending_orders',
-        data: {}
+        data: {
+          page: 1,
+          pageSize: 10
+        }
       });
       if (res.result && res.result.success) {
-        const newOrderList = res.result.result || [];
+        const newOrderList = res.result.data || [];
         setOrderList(newOrderList);
 
         // 新订单提醒
@@ -50,6 +53,14 @@ export default function OrderWait(props) {
           clearInterval(timer);
         }
         startPolling();
+      } else {
+        // 云函数调用失败
+        console.error('获取待接单订单失败：', res.result);
+        toast({
+          title: '获取订单失败',
+          description: res.result?.msg || '请稍后重试',
+          variant: 'destructive'
+        });
       }
     } catch (err) {
       console.error('获取待接单订单失败：', err);
@@ -86,6 +97,10 @@ export default function OrderWait(props) {
   // 接单操作
   const handleReceiveOrder = async orderId => {
     try {
+      // 二次确认（避免误操作）
+      if (!confirm('确定要接这个订单吗？')) {
+        return;
+      }
       const res = await props.$w.cloud.callFunction({
         name: 'update_order_status',
         data: {
@@ -189,7 +204,7 @@ export default function OrderWait(props) {
                     <MapPin className="w-5 h-5 mr-2 text-slate-500 mt-0.5" />
                     <div>
                       <div className="text-sm text-slate-600 mb-1">救援地点</div>
-                      <div className="text-slate-800 font-medium">{order.address || '暂无地址信息'}</div>
+                      <div className="text-slate-800 font-medium">{order.address || order.owner_address || '暂无地址信息'}</div>
                     </div>
                   </div>
 
@@ -197,7 +212,7 @@ export default function OrderWait(props) {
                     <Phone className="w-5 h-5 mr-2 text-slate-500 mt-0.5" />
                     <div>
                       <div className="text-sm text-slate-600 mb-1">联系电话</div>
-                      <div className="text-slate-800 font-medium">{order.phone || '暂无电话信息'}</div>
+                      <div className="text-slate-800 font-medium">{order.phone || order.owner_phone || '暂无电话信息'}</div>
                     </div>
                   </div>
 
@@ -205,7 +220,7 @@ export default function OrderWait(props) {
                     <AlertCircle className="w-5 h-5 mr-2 text-slate-500 mt-0.5" />
                     <div>
                       <div className="text-sm text-slate-600 mb-1">救援类型</div>
-                      <div className="text-slate-800 font-medium">{order.rescue_type || '通用救援'}</div>
+                      <div className="text-slate-800 font-medium">{order.rescue_type || order.service_type || '通用救援'}</div>
                     </div>
                   </div>
                 </div>
