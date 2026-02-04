@@ -15,7 +15,7 @@ const RESCUE_TYPES = [{
   label: '电瓶亏电',
   value: 'battery_dead'
 }, {
-  label: '燃油补给',
+  label: '柴油补给燃油补给',
   value: 'fuel_supply'
 }, {
   label: '其他故障',

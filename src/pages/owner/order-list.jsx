@@ -17,7 +17,7 @@ const ORDER_STATUS_MAP = {
 const RESCUE_TYPE_MAP = {
   tyre_burst: '爆胎救援',
   battery_dead: '电瓶亏电',
-  fuel_supply: '燃油补给',
+  fuel_supply: '柴油补给燃油补给',
   other: '其他故障'
 };
 export default function OwnerOrderList(props) {
