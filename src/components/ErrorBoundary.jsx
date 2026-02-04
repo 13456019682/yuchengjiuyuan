@@ -12,6 +12,8 @@ class ErrorBoundary extends React.Component {
       hasError: false,
       errorMsg: ''
     };
+    // 绑定方法到实例
+    this.handleReset = this.handleReset.bind(this);
   }
 
   /**
@@ -43,12 +45,12 @@ class ErrorBoundary extends React.Component {
   /**
    * 重置错误状态
    */
-  handleReset = () => {
+  handleReset() {
     this.setState({
       hasError: false,
       errorMsg: ''
     });
-  };
+  }
   render() {
     if (this.state.hasError) {
       return <div className="flex flex-col items-center justify-center min-h-[200px] p-6 bg-red-50 rounded-lg border border-red-200">
