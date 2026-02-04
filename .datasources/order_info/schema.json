@@ -33,6 +33,36 @@
       "name": "health_confirmation",
       "title": "接单健康确认记录",
       "type": "Boolean"
+    },
+    {
+      "name": "create_time",
+      "title": "创建时间",
+      "type": "Date"
+    },
+    {
+      "name": "update_time",
+      "title": "更新时间",
+      "type": "Date"
+    },
+    {
+      "name": "owner_phone",
+      "title": "车主电话",
+      "type": "String"
+    },
+    {
+      "name": "owner_address",
+      "title": "救援地址",
+      "type": "String"
+    },
+    {
+      "name": "car_model",
+      "title": "车辆型号",
+      "type": "String"
+    },
+    {
+      "name": "fault_desc",
+      "title": "故障描述",
+      "type": "String"
     }
   ]
 }

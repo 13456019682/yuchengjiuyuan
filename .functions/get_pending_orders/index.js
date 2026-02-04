@@ -14,7 +14,7 @@ exports.main = async (event, context) => {
       .where({
         order_status: 'pending'
       })
-      .orderBy('createdAt', 'desc')
+      .orderBy('create_time', 'desc')
       .skip(offset)
       .limit(pageSize)
       .get();

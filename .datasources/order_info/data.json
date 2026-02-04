@@ -7,8 +7,12 @@
     "service_type": "搭电",
     "order_status": "待接单",
     "health_confirmation": false,
-    "createdAt": 1770007146731,
-    "updatedAt": 1770007146731
+    "create_time": 1770007146731,
+    "update_time": 1770007146731,
+    "owner_phone": "13800138000",
+    "owner_address": "浙江省宁波市鄞州区",
+    "car_model": "丰田卡罗拉",
+    "fault_desc": "车辆无法启动"
   },
   {
     "_id": "2",
@@ -18,7 +22,11 @@
     "service_type": "换胎",
     "order_status": "已接单",
     "health_confirmation": true,
-    "createdAt": 1770007146732,
-    "updatedAt": 1770007146732
+    "create_time": 1770007146732,
+    "update_time": 1770007146732,
+    "owner_phone": "13900139000",
+    "owner_address": "浙江省宁波市海曙区",
+    "car_model": "大众朗逸",
+    "fault_desc": "轮胎爆胎"
   }
 ]

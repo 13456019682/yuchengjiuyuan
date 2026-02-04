@@ -77,11 +77,24 @@ export default function OrderCreate(props) {
         createTime: new Date().toLocaleString(),
         updateTime: new Date().toLocaleString()
       };
-      const result = await props.$w.cloud.callFunction({
-        name: 'create_order',
-        data: orderData
+      // 使用数据库直接操作创建订单
+      const tcb = await props.$w.cloud.getCloudInstance();
+      const result = await tcb.database().collection('order_info').add({
+        data: {
+          order_id: orderData.orderId,
+          car_owner_id: orderData.ownerId,
+          service_type: orderData.rescueType,
+          order_status: orderData.orderStatus,
+          create_time: new Date(),
+          update_time: new Date(),
+          // 存储其他信息（需要先在数据模型中添加这些字段）
+          owner_phone: orderData.ownerPhone,
+          owner_address: orderData.ownerAddress,
+          car_model: orderData.carModel,
+          fault_desc: orderData.faultDesc
+        }
       });
-      if (result.result?.success) {
+      if (result.id) {
         toast({
           title: '下单成功',
           description: '订单已提交，请等待师傅接单',
@@ -96,7 +109,7 @@ export default function OrderCreate(props) {
       } else {
         toast({
           title: '下单失败',
-          description: result.result?.msg || '请稍后重试',
+          description: '请稍后重试',
           variant: 'destructive'
         });
       }

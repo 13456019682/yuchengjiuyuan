@@ -40,18 +40,29 @@ export default function OwnerOrderList(props) {
         });
         return;
       }
-      const result = await props.$w.cloud.callFunction({
-        name: 'get_owner_orders',
-        data: {
-          ownerId
-        }
-      });
-      if (result.result?.success) {
-        setOrderList(result.result.data || []);
+      // 使用数据库直接查询订单
+      const tcb = await props.$w.cloud.getCloudInstance();
+      const result = await tcb.database().collection('order_info').where({
+        car_owner_id: ownerId
+      }).orderBy('create_time', 'desc').get();
+      if (result.data) {
+        // 转换数据格式以匹配前端使用
+        const orderList = result.data.map(order => ({
+          orderId: order.order_id,
+          ownerId: order.car_owner_id,
+          rescueType: order.service_type,
+          orderStatus: order.order_status,
+          createTime: order.create_time ? new Date(order.create_time).toLocaleString() : '',
+          ownerPhone: order.owner_phone || '',
+          ownerAddress: order.owner_address || '',
+          carModel: order.car_model || '',
+          faultDesc: order.fault_desc || ''
+        }));
+        setOrderList(orderList);
       } else {
         toast({
           title: '查询失败',
-          description: result.result?.msg || '请稍后重试',
+          description: '请稍后重试',
           variant: 'destructive'
         });
       }

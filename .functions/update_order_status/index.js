@@ -94,7 +94,7 @@ exports.main = async (event, context) => {
     // 6. 更新订单状态（若为接单，同步存储师傅openid）
     const updateData = {
       order_status: targetStatus,
-      updatedAt: db.serverDate()
+      update_time: db.serverDate()
     };
     // 接单时额外存储师傅信息
     if (targetStatus === ORDER_STATUS.RESCUEING) {

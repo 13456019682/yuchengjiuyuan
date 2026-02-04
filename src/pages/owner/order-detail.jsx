@@ -67,18 +67,30 @@ export default function OwnerOrderDetail(props) {
       return;
     }
     try {
-      const res = await props.$w.cloud.callFunction({
-        name: 'get_order_detail',
-        data: {
-          orderId
-        }
-      });
-      if (res.result?.success) {
-        setOrder(res.result.result);
+      // 使用数据库直接查询订单详情
+      const tcb = await props.$w.cloud.getCloudInstance();
+      const result = await tcb.database().collection('order_info').where({
+        order_id: orderId,
+        car_owner_id: ownerId
+      }).get();
+      if (result.data && result.data.length > 0) {
+        const orderData = result.data[0];
+        // 转换数据格式以匹配前端使用
+        setOrder({
+          orderId: orderData.order_id,
+          ownerId: orderData.car_owner_id,
+          rescueType: orderData.service_type,
+          orderStatus: orderData.order_status,
+          createTime: orderData.create_time ? new Date(orderData.create_time).toLocaleString() : '',
+          ownerPhone: orderData.owner_phone || '',
+          ownerAddress: orderData.owner_address || '',
+          carModel: orderData.car_model || '',
+          faultDesc: orderData.fault_desc || ''
+        });
       } else {
         toast({
           title: '订单数据加载失败',
-          description: res.result?.error || '未知错误',
+          description: '订单不存在或无权限查看',
           variant: 'destructive'
         });
       }
