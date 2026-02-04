@@ -11,6 +11,7 @@ import ADMIN/EXPORT_CALL-LOGS from '../pages/admin/export-call-logs.jsx';
 import TEST/VALIDATION from '../pages/test/validation.jsx';
 import TEST/VALIDATION_REPORT from '../pages/test/validation-report.jsx';
 import TEST/DEPLOY_GUIDE from '../pages/test/deploy-guide.jsx';
+import TEST/CLOUD_FUNCTION-TEST from '../pages/test/cloud-function-test.jsx';
 export const routers = [{
   id: "blank",
   component: BLANK
@@ -50,4 +51,7 @@ export const routers = [{
 }, {
   id: "test/deploy-guide",
   component: TEST/DEPLOY_GUIDE
+}, {
+  id: "test/cloud-function-test",
+  component: TEST/CLOUD_FUNCTION-TEST
 }]
