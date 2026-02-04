@@ -22,6 +22,17 @@
       "name": "sort_order",
       "title": "排序顺序",
       "type": "Number"
+    },
+    {
+      "name": "virtual_phone",
+      "title": "虚拟电话号码",
+      "type": "String"
+    },
+    {
+      "name": "virtual_phone_expire_time",
+      "title": "虚拟电话过期时间",
+      "type": "DateTime",
+      "format": "timestamp-ms"
     }
   ]
 }
