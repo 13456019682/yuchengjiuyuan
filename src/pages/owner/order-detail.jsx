@@ -3,11 +3,25 @@ import React, { useState, useEffect } from 'react';
 // @ts-ignore;
 import { useToast, Button } from '@/components/ui';
 // @ts-ignore;
-import { Phone, Clock, CheckCircle, XCircle, AlertCircle, Filter, Download, MapPin } from 'lucide-react';
+import { Phone, Clock, CheckCircle, XCircle, AlertCircle, Filter, Download, MapPin, Car, FileText } from 'lucide-react';
 
 import LoadingSpinner from '@/components/LoadingSpinner';
 import PaginationControl from '@/components/Pagination';
 import { ErrorBoundaryWrapper } from '@/components/ErrorBoundary';
+
+// 移除拖车救援映射
+const ORDER_STATUS_MAP = {
+  pending: '待接单',
+  rescueing: '已接单',
+  completed: '已完成',
+  cancelled: '已取消'
+};
+const RESCUE_TYPE_MAP = {
+  tyre_burst: '爆胎救援',
+  battery_dead: '电瓶亏电',
+  fuel_supply: '燃油补给',
+  other: '其他故障'
+};
 export default function OwnerOrderDetail(props) {
   const {
     toast
@@ -275,34 +289,6 @@ export default function OwnerOrderDetail(props) {
     return `${mins}分${secs}秒`;
   };
 
-  // 服务类型映射（移除拖车）
-  const SERVICE_TYPE_MAP = {
-    '搭电': {
-      label: '搭电',
-      icon: '⚡',
-      color: 'text-yellow-600'
-    },
-    '换胎': {
-      label: '换胎',
-      icon: '🔧',
-      color: 'text-blue-600'
-    },
-    '补胎': {
-      label: '补胎',
-      icon: '🛞',
-      color: 'text-green-600'
-    }
-  };
-
-  // 获取服务类型信息
-  const getServiceTypeInfo = serviceType => {
-    return SERVICE_TYPE_MAP[serviceType] || {
-      label: serviceType || '未知',
-      icon: '🔧',
-      color: 'text-slate-600'
-    };
-  };
-
   // 获取通话状态图标和颜色
   const getCallStatusInfo = status => {
     switch (status) {
@@ -356,73 +342,65 @@ export default function OwnerOrderDetail(props) {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 mt-6 space-y-6">
-        {/* 订单信息卡片 */}
-        {order && <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-slate-800 flex items-center">
-                <AlertCircle className="w-5 h-5 mr-2 text-blue-500" />
-                订单信息
-              </h2>
-              <div className={`text-sm font-medium px-3 py-1 rounded ${order.order_status === '待接单' ? 'bg-amber-100 text-amber-700' : order.order_status === '已接单' ? 'bg-blue-100 text-blue-700' : order.order_status === '已完成' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
-                {order.order_status}
+        {/* 订单基本信息卡片 */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-800">订单信息</h2>
+            <div className={`px-3 py-1 rounded-full text-sm font-medium ${order?.orderStatus === 'pending' ? 'bg-amber-100 text-amber-700' : order?.orderStatus === 'rescueing' ? 'bg-blue-100 text-blue-700' : order?.orderStatus === 'completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
+              {ORDER_STATUS_MAP[order?.orderStatus] || '未知状态'}
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex items-start">
+              <MapPin className="w-5 h-5 mr-3 text-gray-500 mt-0.5" />
+              <div className="flex-1">
+                <div className="text-sm text-gray-600 mb-1">救援地址</div>
+                <div className="text-gray-800 font-medium">{order?.ownerAddress || '暂无地址信息'}</div>
               </div>
             </div>
 
-            <div className="space-y-3">
-              <div className="flex items-start">
-                <AlertCircle className="w-5 h-5 mr-3 text-slate-500 mt-0.5" />
-                <div className="flex-1">
-                  <div className="text-sm text-slate-600 mb-1">服务类型</div>
-                  <div className="text-slate-800 font-medium flex items-center">
-                    <span className={`text-xl mr-2 ${getServiceTypeInfo(order.service_type).color}`}>
-                      {getServiceTypeInfo(order.service_type).icon}
-                    </span>
-                    {getServiceTypeInfo(order.service_type).label}
-                  </div>
-                </div>
+            <div className="flex items-start">
+              <Phone className="w-5 h-5 mr-3 text-gray-500 mt-0.5" />
+              <div className="flex-1">
+                <div className="text-sm text-gray-600 mb-1">联系电话</div>
+                <div className="text-gray-800 font-medium">{order?.ownerPhone || '暂无电话信息'}</div>
               </div>
-
-              <div className="flex items-start">
-                <MapPin className="w-5 h-5 mr-3 text-slate-500 mt-0.5" />
-                <div className="flex-1">
-                  <div className="text-sm text-slate-600 mb-1">救援地址</div>
-                  <div className="text-slate-800 font-medium">{order.address || '暂无地址信息'}</div>
-                </div>
-              </div>
-
-              <div className="flex items-start">
-                <Phone className="w-5 h-5 mr-3 text-slate-500 mt-0.5" />
-                <div className="flex-1">
-                  <div className="text-sm text-slate-600 mb-1">联系电话</div>
-                  <div className="text-slate-800 font-medium">{order.phone || '暂无电话信息'}</div>
-                </div>
-              </div>
-
-              <div className="flex items-start">
-                <Clock className="w-5 h-5 mr-3 text-slate-500 mt-0.5" />
-                <div className="flex-1">
-                  <div className="text-sm text-slate-600 mb-1">创建时间</div>
-                  <div className="text-slate-800 font-medium">{formatTime(order.create_time)}</div>
-                </div>
-              </div>
-
-              {order.car_model && <div className="flex items-start">
-                  <AlertCircle className="w-5 h-5 mr-3 text-slate-500 mt-0.5" />
-                  <div className="flex-1">
-                    <div className="text-sm text-slate-600 mb-1">车辆型号</div>
-                    <div className="text-slate-800 font-medium">{order.car_model}</div>
-                  </div>
-                </div>}
-
-              {order.fault_desc && <div className="flex items-start">
-                  <AlertCircle className="w-5 h-5 mr-3 text-slate-500 mt-0.5" />
-                  <div className="flex-1">
-                    <div className="text-sm text-slate-600 mb-1">故障描述</div>
-                    <div className="text-slate-800 font-medium">{order.fault_desc}</div>
-                  </div>
-                </div>}
             </div>
-          </div>}
+
+            <div className="flex items-start">
+              <AlertCircle className="w-5 h-5 mr-3 text-gray-500 mt-0.5" />
+              <div className="flex-1">
+                <div className="text-sm text-gray-600 mb-1">救援类型</div>
+                <div className="text-gray-800 font-medium">{RESCUE_TYPE_MAP[order?.rescueType] || '未知类型'}</div>
+              </div>
+            </div>
+
+            <div className="flex items-start">
+              <Car className="w-5 h-5 mr-3 text-gray-500 mt-0.5" />
+              <div className="flex-1">
+                <div className="text-sm text-gray-600 mb-1">车辆型号</div>
+                <div className="text-gray-800 font-medium">{order?.carModel || '未填写'}</div>
+              </div>
+            </div>
+
+            <div className="flex items-start">
+              <FileText className="w-5 h-5 mr-3 text-gray-500 mt-0.5" />
+              <div className="flex-1">
+                <div className="text-sm text-gray-600 mb-1">故障描述</div>
+                <div className="text-gray-800 font-medium">{order?.faultDesc || '未填写'}</div>
+              </div>
+            </div>
+
+            <div className="flex items-start">
+              <Clock className="w-5 h-5 mr-3 text-gray-500 mt-0.5" />
+              <div className="flex-1">
+                <div className="text-sm text-gray-600 mb-1">下单时间</div>
+                <div className="text-gray-800 font-medium">{formatTime(order?.createTime)}</div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* 虚拟号码信息卡片 - 使用 ErrorBoundary 包裹 */}
         <ErrorBoundaryWrapper onReset={resetCallLogs}>

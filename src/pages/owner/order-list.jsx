@@ -1,53 +1,24 @@
 // @ts-ignore;
 import React, { useState, useEffect } from 'react';
 // @ts-ignore;
-import { useToast, Button } from '@/components/ui';
+import { useToast, Button, Card } from '@/components/ui';
 // @ts-ignore;
-import { MapPin, Phone, AlertCircle, Clock, CheckCircle, XCircle, Plus } from 'lucide-react';
+import { MapPin, Phone, AlertCircle, Plus, Clock } from 'lucide-react';
 
 import LoadingSpinner from '@/components/LoadingSpinner';
 
-// 订单状态映射
+// 移除拖车救援映射
 const ORDER_STATUS_MAP = {
-  '待接单': {
-    text: '待接单',
-    color: 'text-amber-600',
-    bg: 'bg-amber-100'
-  },
-  '已接单': {
-    text: '已接单',
-    color: 'text-blue-600',
-    bg: 'bg-blue-100'
-  },
-  '已完成': {
-    text: '已完成',
-    color: 'text-emerald-600',
-    bg: 'bg-emerald-100'
-  },
-  '已取消': {
-    text: '已取消',
-    color: 'text-red-600',
-    bg: 'bg-red-100'
-  }
+  pending: '待接单',
+  rescueing: '已接单',
+  completed: '已完成',
+  cancelled: '已取消'
 };
-
-// 服务类型映射（移除拖车）
-const SERVICE_TYPE_MAP = {
-  '搭电': {
-    label: '搭电',
-    icon: '⚡',
-    color: 'text-yellow-600'
-  },
-  '换胎': {
-    label: '换胎',
-    icon: '🔧',
-    color: 'text-blue-600'
-  },
-  '补胎': {
-    label: '补胎',
-    icon: '🛞',
-    color: 'text-green-600'
-  }
+const RESCUE_TYPE_MAP = {
+  tyre_burst: '爆胎救援',
+  battery_dead: '电瓶亏电',
+  fuel_supply: '燃油补给',
+  other: '其他故障'
 };
 export default function OwnerOrderList(props) {
   const {
@@ -56,15 +27,15 @@ export default function OwnerOrderList(props) {
   const [orderList, setOrderList] = useState([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
-    fetchOwnerOrders();
+    getOwnerOrders();
   }, []);
-  const fetchOwnerOrders = async () => {
+  const getOwnerOrders = async () => {
     setLoading(true);
     try {
       const ownerId = props.$w.auth.currentUser?.userId;
       if (!ownerId) {
         toast({
-          title: '请先登录',
+          title: '请登录',
           variant: 'destructive'
         });
         return;
@@ -84,117 +55,107 @@ export default function OwnerOrderList(props) {
           variant: 'destructive'
         });
       }
-    } catch (error) {
-      console.error('查询订单失败：', error);
+    } catch (e) {
       toast({
         title: '查询失败',
-        description: error.message || '请稍后重试',
+        description: e.message || '请稍后重试',
         variant: 'destructive'
       });
     } finally {
       setLoading(false);
     }
   };
-  const formatTime = timestamp => {
-    if (!timestamp) return '-';
-    const date = new Date(timestamp);
-    return date.toLocaleString('zh-CN', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+  const getStatusStyle = status => {
+    switch (status) {
+      case 'pending':
+        return 'bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-lg shadow-amber-500/30';
+      case 'rescueing':
+        return 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30';
+      case 'completed':
+        return 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30';
+      case 'cancelled':
+        return 'bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg shadow-red-500/30';
+      default:
+        return 'bg-gradient-to-r from-gray-400 to-gray-500 text-white';
+    }
   };
   return <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
-        {/* 页面头部 */}
-        <div className="mb-6 sm:mb-8">
+        <div className="mb-6">
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 mb-2">我的订单</h1>
-          <p className="text-slate-600 text-sm sm:text-base">查看您的历史订单</p>
+          <p className="text-slate-600">查看您的历史订单</p>
         </div>
 
-        {/* 加载状态 */}
-        {loading ? <div className="flex flex-col items-center justify-center py-12">
-            <LoadingSpinner size="lg" color="primary" />
-            <p className="mt-4 text-slate-600">加载中...</p>
-          </div> : orderList.length === 0 ? <div className="flex flex-col items-center justify-center py-12">
-            <XCircle className="w-16 h-16 text-slate-300 mb-4" />
-            <p className="text-slate-600 text-lg">暂无订单</p>
-            <Button onClick={() => props.$w.utils.navigateTo({
-          pageId: 'owner/order-create',
-          params: {}
-        })} className="mt-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium shadow-lg shadow-blue-500/30 transition-all duration-200 hover:shadow-xl hover:shadow-blue-500/40">
-              <Plus className="w-4 h-4 mr-2" />
-              创建救援订单
-            </Button>
-          </div> : <div className="space-y-4">
-            {orderList.map(order => {
-          const statusInfo = ORDER_STATUS_MAP[order.order_status] || ORDER_STATUS_MAP['待接单'];
-          const serviceInfo = SERVICE_TYPE_MAP[order.service_type] || {
-            label: order.service_type,
-            icon: '🔧',
-            color: 'text-slate-600'
-          };
-          return <div key={order.order_id} onClick={() => props.$w.utils.navigateTo({
-            pageId: 'owner/order-detail',
-            params: {
-              orderId: order.order_id
-            }
-          })} className="bg-white rounded-lg shadow-sm border border-slate-200 p-6 hover:shadow-md transition-shadow cursor-pointer">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center space-x-2">
-                      <span className={`text-2xl ${serviceInfo.color}`}>{serviceInfo.icon}</span>
-                      <div>
-                        <div className={`text-sm font-medium px-2 py-1 rounded ${statusInfo.bg} ${statusInfo.color}`}>
-                          {statusInfo.text}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-xs text-slate-400 flex items-center">
-                      <Clock className="w-3 h-3 mr-1" />
-                      {formatTime(order.create_time)}
+        {loading ? <div className="flex items-center justify-center min-h-[400px]">
+            <LoadingSpinner />
+          </div> : orderList.length === 0 ? <Card className="p-12 text-center">
+            <div className="flex flex-col items-center justify-center space-y-4">
+              <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
+                <Clock className="w-8 h-8 text-slate-400" />
+              </div>
+              <p className="text-slate-600">暂无订单</p>
+              <Button onClick={() => props.$w.utils.navigateTo({
+            pageId: 'owner/order-create',
+            params: {}
+          })} className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium shadow-lg shadow-blue-500/30 transition-all duration-200 hover:shadow-xl hover:shadow-blue-500/40">
+                <Plus className="w-4 h-4 mr-2" />
+                创建救援订单
+              </Button>
+            </div>
+          </Card> : <div className="space-y-4">
+            {orderList.map(order => <Card key={order.orderId} className="p-6 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => props.$w.utils.navigateTo({
+          pageId: 'owner/order-detail',
+          params: {
+            orderId: order.orderId
+          }
+        })}>
+                <div className="flex items-start justify-between mb-4">
+                  <div className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusStyle(order.orderStatus)}`}>
+                    {ORDER_STATUS_MAP[order.orderStatus]}
+                  </div>
+                  <div className="flex items-center text-slate-500 text-sm">
+                    <Clock className="w-4 h-4 mr-1" />
+                    {order.createTime}
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-start">
+                    <AlertCircle className="w-5 h-5 mr-2 text-slate-500 mt-0.5" />
+                    <div>
+                      <div className="text-sm text-slate-600 mb-1">救援类型</div>
+                      <div className="text-slate-800 font-medium">{RESCUE_TYPE_MAP[order.rescueType]}</div>
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <div className="flex items-start">
-                      <AlertCircle className="w-4 h-4 mr-2 text-slate-500 mt-0.5" />
-                      <div>
-                        <div className="text-xs text-slate-600 mb-1">救援类型</div>
-                        <div className="text-sm font-medium text-slate-800">{serviceInfo.label}</div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start">
-                      <MapPin className="w-4 h-4 mr-2 text-slate-500 mt-0.5" />
-                      <div>
-                        <div className="text-xs text-slate-600 mb-1">救援地址</div>
-                        <div className="text-sm font-medium text-slate-800">{order.address || '未填写'}</div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start">
-                      <Phone className="w-4 h-4 mr-2 text-slate-500 mt-0.5" />
-                      <div>
-                        <div className="text-xs text-slate-600 mb-1">联系电话</div>
-                        <div className="text-sm font-medium text-slate-800">{order.phone || '未填写'}</div>
-                      </div>
+                  <div className="flex items-start">
+                    <MapPin className="w-5 h-5 mr-2 text-slate-500 mt-0.5" />
+                    <div>
+                      <div className="text-sm text-slate-600 mb-1">救援地址</div>
+                      <div className="text-slate-800 font-medium">{order.ownerAddress || '未填写'}</div>
                     </div>
                   </div>
-                </div>;
-        })}
+
+                  <div className="flex items-start">
+                    <Phone className="w-5 h-5 mr-2 text-slate-500 mt-0.5" />
+                    <div>
+                      <div className="text-sm text-slate-600 mb-1">联系电话</div>
+                      <div className="text-slate-800 font-medium">{order.ownerPhone || '未填写'}</div>
+                    </div>
+                  </div>
+                </div>
+              </Card>)}
           </div>}
 
         {/* 创建订单按钮 */}
-        {!loading && orderList.length > 0 && <div className="fixed bottom-6 right-6">
-            <Button onClick={() => props.$w.utils.navigateTo({
+        <div className="fixed bottom-6 right-6">
+          <Button onClick={() => props.$w.utils.navigateTo({
           pageId: 'owner/order-create',
           params: {}
-        })} className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium shadow-lg shadow-blue-500/30 transition-all duration-200 hover:shadow-xl hover:shadow-blue-500/40 rounded-full w-14 h-14 flex items-center justify-center">
-              <Plus className="w-6 h-6" />
-            </Button>
-          </div>}
+        })} className="w-14 h-14 rounded-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg shadow-blue-500/30 transition-all duration-200 hover:shadow-xl hover:shadow-blue-500/40 flex items-center justify-center">
+            <Plus className="w-6 h-6" />
+          </Button>
+        </div>
       </div>
     </div>;
 }
