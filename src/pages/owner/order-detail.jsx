@@ -1,9 +1,9 @@
 // @ts-ignore;
 import React, { useState, useEffect } from 'react';
 // @ts-ignore;
-import { useToast } from '@/components/ui';
+import { useToast, Button } from '@/components/ui';
 // @ts-ignore;
-import { Phone, Clock, CheckCircle, XCircle, AlertCircle, Filter } from 'lucide-react';
+import { Phone, Clock, CheckCircle, XCircle, AlertCircle, Filter, Download } from 'lucide-react';
 
 import LoadingSpinner from '@/components/LoadingSpinner';
 import PaginationControl from '@/components/Pagination';
@@ -144,6 +144,107 @@ export default function OwnerOrderDetail(props) {
     fetchCallLogs(1, {});
   };
 
+  // 导出Excel
+  const handleExportExcel = async () => {
+    if (callLogs.length === 0) {
+      toast({
+        title: '导出失败',
+        description: '暂无通话记录可导出',
+        variant: 'destructive'
+      });
+      return;
+    }
+    try {
+      // 表头配置
+      const excelHeader = [{
+        key: 'call_id',
+        title: '通话ID'
+      }, {
+        key: 'order_id',
+        title: '订单ID'
+      }, {
+        key: 'caller_id',
+        title: '主叫方'
+      }, {
+        key: 'callee_id',
+        title: '被叫方'
+      }, {
+        key: 'virtual_phone',
+        title: '虚拟号码'
+      }, {
+        key: 'call_status',
+        title: '通话状态'
+      }, {
+        key: 'call_start_time',
+        title: '通话开始时间'
+      }, {
+        key: 'call_end_time',
+        title: '通话结束时间'
+      }, {
+        key: 'call_duration',
+        title: '通话时长(秒)'
+      }];
+
+      // 调用云函数生成Excel
+      const res = await props.$w.cloud.callFunction({
+        name: 'export_call_log_excel',
+        data: {
+          data: callLogs,
+          header: excelHeader,
+          fileName: `通话记录_${orderId}`
+        }
+      });
+      if (res.result && res.result.success) {
+        const {
+          downloadUrl,
+          fileID
+        } = res.result;
+
+        // 显示成功提示和下载链接
+        toast({
+          title: '导出成功',
+          description: 'Excel文件已生成，点击复制下载链接',
+          variant: 'default'
+        });
+
+        // 显示下载链接对话框
+        if (typeof window !== 'undefined' && window.confirm) {
+          window.confirm(`Excel下载链接：\n${downloadUrl}\n\n点击确定复制链接到剪贴板`);
+
+          // 复制链接到剪贴板
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(downloadUrl).then(() => {
+              toast({
+                title: '复制成功',
+                description: '下载链接已复制到剪贴板',
+                variant: 'default'
+              });
+            }).catch(() => {
+              toast({
+                title: '复制失败',
+                description: '请手动复制下载链接',
+                variant: 'destructive'
+              });
+            });
+          }
+        }
+      } else {
+        toast({
+          title: '导出失败',
+          description: res.result?.msg || '请稍后重试',
+          variant: 'destructive'
+        });
+      }
+    } catch (err) {
+      console.error('导出Excel失败：', err);
+      toast({
+        title: '导出失败',
+        description: err.message || '请稍后重试',
+        variant: 'destructive'
+      });
+    }
+  };
+
   // 初始化加载
   useEffect(() => {
     fetchOrderDetail();
@@ -271,6 +372,10 @@ export default function OwnerOrderDetail(props) {
                 <span className="text-sm text-gray-500">
                   共 {totalPages * 10} 条记录
                 </span>
+                <Button onClick={handleExportExcel} variant="outline" size="sm" className="flex items-center space-x-1">
+                  <Download className="w-4 h-4" />
+                  <span>导出Excel</span>
+                </Button>
                 <button onClick={() => setShowFilter(!showFilter)} className="flex items-center space-x-1 px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
                   <Filter className="w-4 h-4" />
                   <span>筛选</span>
