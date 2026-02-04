@@ -1,0 +1,9 @@
+{
+  "name": "create_call_log",
+  "version": "1.0.0",
+  "description": "创建通话日志记录",
+  "main": "index.js",
+  "dependencies": {
+    "@cloudbase/node-sdk": "^3.10.0"
+  }
+}
