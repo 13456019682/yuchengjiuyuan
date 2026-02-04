@@ -1,0 +1,9 @@
+{
+  "name": "get_owner_orders",
+  "version": "1.0.0",
+  "description": "获取车主订单列表",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}
