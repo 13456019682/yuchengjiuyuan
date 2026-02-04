@@ -113,10 +113,11 @@ export default function OrderCreate(props) {
           variant: 'destructive'
         });
       }
-    } catch (e) {
+    } catch (error) {
+      console.error('创建订单失败:', error);
       toast({
         title: '下单失败',
-        description: e.message || '请稍后重试',
+        description: error.message || '请稍后重试',
         variant: 'destructive'
       });
     } finally {
