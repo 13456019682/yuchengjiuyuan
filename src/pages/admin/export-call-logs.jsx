@@ -127,6 +127,7 @@ export default function ExportCallLogs(props) {
         key: 'call_duration',
         title: '通话时长(秒)'
       }];
+
       // 前端Excel导出实现
       const exportToExcel = (data, headers, fileName) => {
         // 创建CSV格式的数据
@@ -144,11 +145,12 @@ export default function ExportCallLogs(props) {
             return value;
           }).join(',');
         });
-        
         const csvContent = [csvHeaders, ...csvRows].join('\n');
-        
+
         // 创建Blob并下载
-        const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const blob = new Blob(['\uFEFF' + csvContent], {
+          type: 'text/csv;charset=utf-8;'
+        });
         const link = document.createElement('a');
         const url = URL.createObjectURL(blob);
         link.setAttribute('href', url);
@@ -157,35 +159,31 @@ export default function ExportCallLogs(props) {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        
         return {
           success: true,
           downloadUrl: url,
           fileID: `file_${Date.now()}`
         };
       };
-      
-      try {
-        const result = exportToExcel(callLogs, header, `通话记录_${new Date().getTime()}`);
-        
-        if (result.success) {
-          toast({
-            title: '导出成功',
-            description: 'CSV文件已生成并开始下载',
-            variant: 'default'
-          });
-          const historyItem = {
-            id: result.fileID,
-            fileName: `通话记录_${new Date().getTime()}.csv`,
-            downloadUrl: result.downloadUrl,
-            exportTime: new Date().toISOString(),
-            recordCount: callLogs.length
-          };
-          setExportHistory([historyItem, ...exportHistory]);
-          if (typeof window !== 'undefined' && window.confirm) {
-            const confirmed = window.confirm(`CSV文件下载链接：\n${result.downloadUrl}\n\n点击确定复制链接到剪贴板`);
-            if (confirmed && navigator.clipboard) {
-              navigator.clipboard.writeText(result.downloadUrl).then(() => {
+      const result = exportToExcel(callLogs, header, `通话记录_${new Date().getTime()}`);
+      if (result.success) {
+        toast({
+          title: '导出成功',
+          description: 'CSV文件已生成并开始下载',
+          variant: 'default'
+        });
+        const historyItem = {
+          id: result.fileID,
+          fileName: `通话记录_${new Date().getTime()}.csv`,
+          downloadUrl: result.downloadUrl,
+          exportTime: new Date().toISOString(),
+          recordCount: callLogs.length
+        };
+        setExportHistory([historyItem, ...exportHistory]);
+        if (typeof window !== 'undefined' && window.confirm) {
+          const confirmed = window.confirm(`CSV文件下载链接：\n${result.downloadUrl}\n\n点击确定复制链接到剪贴板`);
+          if (confirmed && navigator.clipboard) {
+            navigator.clipboard.writeText(result.downloadUrl).then(() => {
               toast({
                 title: '复制成功',
                 description: '下载链接已复制到剪贴板',
@@ -201,11 +199,7 @@ export default function ExportCallLogs(props) {
           }
         }
       } else {
-        toast({
-          title: '导出失败',
-          description: res.result?.msg || '请稍后重试',
-          variant: 'destructive'
-        });
+        throw new Error('导出失败');
       }
     } catch (err) {
       console.error('导出Excel失败：', err);
