@@ -21,29 +21,73 @@ export default function ExportCallLogs(props) {
   const fetchCallLogs = async () => {
     try {
       setLoading(true);
-      const res = await props.$w.cloud.callFunction({
-        name: 'get_call_logs',
-        data: {
-          startTime: filterCondition.startTime || undefined,
-          endTime: filterCondition.endTime || undefined,
-          orderId: filterCondition.orderId || undefined,
-          limit: 1000
-        }
+
+      // 检查网络连接
+      if (!navigator.onLine) {
+        throw new Error('网络连接异常，请检查网络设置');
+      }
+
+      // 添加超时机制
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('请求超时，请重试')), 10000);
       });
-      if (res.result && res.result.success) {
-        setCallLogs(res.result.result || []);
+
+      // 使用数据库直接操作替代云函数调用
+      const tcb = await props.$w.cloud.getCloudInstance();
+      const dbPromise = (async () => {
+        // 构建查询条件
+        const whereCondition = {};
+        if (filterCondition.startTime) {
+          whereCondition.call_start_time = tcb.database().command.gte(filterCondition.startTime);
+        }
+        if (filterCondition.endTime) {
+          if (whereCondition.call_start_time) {
+            whereCondition.call_start_time = tcb.database().command.and(whereCondition.call_start_time, tcb.database().command.lte(filterCondition.endTime));
+          } else {
+            whereCondition.call_start_time = tcb.database().command.lte(filterCondition.endTime);
+          }
+        }
+        if (filterCondition.orderId) {
+          whereCondition.order_id = filterCondition.orderId;
+        }
+
+        // 查询通话记录
+        const result = await tcb.database().collection('call_logs').where(whereCondition).orderBy('call_start_time', 'desc').limit(1000).get();
+        return {
+          success: true,
+          data: result.data || [],
+          total: result.data.length
+        };
+      })();
+
+      // 竞速处理：超时或正常返回
+      const res = await Promise.race([dbPromise, timeoutPromise]);
+      if (res.success) {
+        setCallLogs(res.data || []);
       } else {
         toast({
           title: '获取失败',
-          description: res.result?.msg || '请稍后重试',
+          description: res.msg || '请稍后重试',
           variant: 'destructive'
         });
       }
     } catch (err) {
       console.error('获取通话记录失败：', err);
+
+      // 统一错误处理
+      let errorTitle = '获取失败';
+      let errorMessage = '网络异常，请重试';
+      if (err.message.includes('timeout')) {
+        errorMessage = '请求超时，请重试';
+      } else if (err.message.includes('网络连接异常')) {
+        errorMessage = '网络连接异常，请检查网络设置';
+      } else if (err.message.includes('COLLECTION_NOT_EXIST')) {
+        errorTitle = '数据异常';
+        errorMessage = '通话记录表不存在，请联系管理员';
+      }
       toast({
-        title: '获取失败',
-        description: err.message || '请稍后重试',
+        title: errorTitle,
+        description: errorMessage,
         variant: 'destructive'
       });
     } finally {
@@ -83,36 +127,65 @@ export default function ExportCallLogs(props) {
         key: 'call_duration',
         title: '通话时长(秒)'
       }];
-      const res = await props.$w.cloud.callFunction({
-        name: 'export_call_log_excel',
-        data: {
-          data: callLogs,
-          header,
-          fileName: `通话记录_${new Date().getTime()}`
-        }
-      });
-      if (res.result && res.result.success) {
-        const {
-          downloadUrl,
-          fileID
-        } = res.result;
-        toast({
-          title: '导出成功',
-          description: 'Excel文件已生成，点击复制下载链接',
-          variant: 'default'
+      // 前端Excel导出实现
+      const exportToExcel = (data, headers, fileName) => {
+        // 创建CSV格式的数据
+        const csvHeaders = headers.map(h => h.title).join(',');
+        const csvRows = data.map(item => {
+          return headers.map(header => {
+            let value = item[header.key] || '';
+            // 处理特殊字符
+            if (typeof value === 'string') {
+              value = value.replace(/"/g, '""');
+              if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+                value = `"${value}"`;
+              }
+            }
+            return value;
+          }).join(',');
         });
-        const historyItem = {
-          id: fileID,
-          fileName: `通话记录_${new Date().getTime()}`,
-          downloadUrl,
-          exportTime: new Date().toISOString(),
-          recordCount: callLogs.length
+        
+        const csvContent = [csvHeaders, ...csvRows].join('\n');
+        
+        // 创建Blob并下载
+        const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `${fileName}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        return {
+          success: true,
+          downloadUrl: url,
+          fileID: `file_${Date.now()}`
         };
-        setExportHistory([historyItem, ...exportHistory]);
-        if (typeof window !== 'undefined' && window.confirm) {
-          const confirmed = window.confirm(`Excel下载链接：\n${downloadUrl}\n\n点击确定复制链接到剪贴板`);
-          if (confirmed && navigator.clipboard) {
-            navigator.clipboard.writeText(downloadUrl).then(() => {
+      };
+      
+      try {
+        const result = exportToExcel(callLogs, header, `通话记录_${new Date().getTime()}`);
+        
+        if (result.success) {
+          toast({
+            title: '导出成功',
+            description: 'CSV文件已生成并开始下载',
+            variant: 'default'
+          });
+          const historyItem = {
+            id: result.fileID,
+            fileName: `通话记录_${new Date().getTime()}.csv`,
+            downloadUrl: result.downloadUrl,
+            exportTime: new Date().toISOString(),
+            recordCount: callLogs.length
+          };
+          setExportHistory([historyItem, ...exportHistory]);
+          if (typeof window !== 'undefined' && window.confirm) {
+            const confirmed = window.confirm(`CSV文件下载链接：\n${result.downloadUrl}\n\n点击确定复制链接到剪贴板`);
+            if (confirmed && navigator.clipboard) {
+              navigator.clipboard.writeText(result.downloadUrl).then(() => {
               toast({
                 title: '复制成功',
                 description: '下载链接已复制到剪贴板',
