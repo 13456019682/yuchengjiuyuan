@@ -37,14 +37,14 @@ exports.main = async (event, context) => {
       .get();
     
     return {
-      success: true,
+      isSuccess: true,
       data: result.data || [],
       total: result.data.length
     };
   } catch (err) {
     console.error('查询通话记录失败：', err);
     return {
-      success: false,
+      isSuccess: false,
       msg: '查询通话记录失败',
       error: err.message
     };

@@ -164,7 +164,7 @@ exports.main = async (event, context) => {
 
     // 通用错误处理
     return {
-      success: false,
+      isSuccess: false,
       code: 500,
       msg: '服务异常，请稍后重试',
       error: error.message || 'Unknown error'

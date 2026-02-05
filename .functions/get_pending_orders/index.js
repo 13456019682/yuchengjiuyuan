@@ -20,7 +20,7 @@ exports.main = async (event, context) => {
       .get();
     
     return {
-      success: true,
+      isSuccess: true,
       data: result.data || [],
       page,
       pageSize,
@@ -29,7 +29,7 @@ exports.main = async (event, context) => {
   } catch (err) {
     console.error('查询待接单订单失败：', err);
     return {
-      success: false,
+      isSuccess: false,
       msg: '查询待接单订单失败',
       error: err.message
     };

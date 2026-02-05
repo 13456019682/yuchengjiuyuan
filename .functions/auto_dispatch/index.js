@@ -95,7 +95,7 @@ exports.main = async (event) => {
       });
     
     return {
-      success: true,
+      isSuccess: true,
       data: {
         dispatched: true,
         mechanic: {
@@ -112,7 +112,7 @@ exports.main = async (event) => {
   } catch (error) {
     console.error('派单失败:', error);
     return {
-      success: false,
+      isSuccess: false,
       error: error.message
     };
   }

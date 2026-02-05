@@ -84,7 +84,7 @@ exports.main = async (event) => {
   } catch (error) {
     console.error('计价计算失败:', error);
     return {
-      success: false,
+      isSuccess: false,
       error: error.message
     };
   }

@@ -36,7 +36,7 @@ exports.main = async (event, context) => {
     const validStatus = Object.values(ORDER_STATUS);
     if (!validStatus.includes(targetStatus)) {
       return {
-        success: false,
+        isSuccess: false,
         msg: '目标状态不合法'
       };
     }
@@ -45,7 +45,7 @@ exports.main = async (event, context) => {
     const orderRes = await db.collection('order_info').where({ order_id: orderId }).get();
     if (!orderRes.data || orderRes.data.length === 0) {
       return {
-        success: false,
+        isSuccess: false,
         msg: '订单不存在'
       };
     }
