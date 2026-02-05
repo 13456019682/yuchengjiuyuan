@@ -1,0 +1,9 @@
+{
+  "name": "calculate_price",
+  "version": "1.0.0",
+  "description": "自动计价云函数，支持业务勾选+超里程+昼夜加价",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

@@ -7,19 +7,19 @@ import { MapPin, Phone, AlertCircle, Car, FileText } from 'lucide-react';
 
 import AgreementModal from '@/components/AgreementModal';
 
-// 移除拖车救援，保留4类核心服务
+// 救援业务类型映射
 const RESCUE_TYPES = [{
-  label: '爆胎救援',
-  value: 'tyre_burst'
+  label: '补胎',
+  value: '补胎'
 }, {
-  label: '电瓶亏电',
-  value: 'battery_dead'
+  label: '换胎',
+  value: '换胎'
 }, {
-  label: '柴油补给燃油补给',
-  value: 'fuel_supply'
+  label: '搭电',
+  value: '搭电'
 }, {
-  label: '其他故障',
-  value: 'other'
+  label: '拖车',
+  value: '拖车'
 }];
 export default function OrderCreate(props) {
   const {
@@ -30,14 +30,58 @@ export default function OrderCreate(props) {
     ownerAddress: '',
     rescueType: '',
     carModel: '',
-    faultDesc: ''
+    faultDesc: '',
+    distance: 0,
+    isNight: false
   });
   const [submitting, setSubmitting] = useState(false);
+  const [priceInfo, setPriceInfo] = useState(null);
+  const [calculating, setCalculating] = useState(false);
   const handleInputChange = (key, value) => {
-    setFormData({
+    const newFormData = {
       ...formData,
       [key]: value
-    });
+    };
+    setFormData(newFormData);
+
+    // 当救援类型、距离或夜间服务变更时，自动计算价格
+    if (['rescueType', 'distance', 'isNight'].includes(key)) {
+      calculatePrice(newFormData);
+    }
+  };
+
+  // 自动计价函数
+  const calculatePrice = async formData => {
+    if (!formData.rescueType) return;
+    setCalculating(true);
+    try {
+      const result = await props.$w.cloud.callFunction({
+        name: 'calculate_price',
+        data: {
+          businessTypes: [formData.rescueType],
+          distance: formData.distance || 0,
+          isNight: formData.isNight || false,
+          serviceTime: new Date().toISOString()
+        }
+      });
+      if (result.success) {
+        setPriceInfo(result.data);
+      } else {
+        toast({
+          title: '计价失败',
+          description: result.error,
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      toast({
+        title: '计价异常',
+        description: '请稍后重试',
+        variant: 'destructive'
+      });
+    } finally {
+      setCalculating(false);
+    }
   };
   const validateForm = () => {
     if (!formData.ownerPhone || !/^1[3-9]\d{9}$/.test(formData.ownerPhone)) {
@@ -186,6 +230,52 @@ export default function OrderCreate(props) {
                 </select>
               </div>
             </div>
+
+            {/* 距离和夜间服务 */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  救援距离(公里)
+                </label>
+                <input type="number" className="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="请输入距离" value={formData.distance} onChange={e => handleInputChange('distance', parseFloat(e.target.value) || 0)} min="0" step="0.1" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  是否夜间服务
+                </label>
+                <div className="flex items-center gap-2 mt-2">
+                  <input type="checkbox" className="w-4 h-4 text-blue-600" checked={formData.isNight} onChange={e => handleInputChange('isNight', e.target.checked)} />
+                  <span className="text-sm text-slate-600">夜间服务(22:00-06:00)</span>
+                </div>
+              </div>
+            </div>
+
+            {/* 价格展示 */}
+            {priceInfo && <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 className="font-medium text-blue-900 mb-2">费用明细</h4>
+                <div className="grid gap-2 text-sm">
+                  <div className="flex justify-between">
+                    <span>基础费用:</span>
+                    <span className="font-medium">¥{priceInfo.basePrice}</span>
+                  </div>
+                  {priceInfo.priceSnapshot.distanceCharge > 0 && <div className="flex justify-between">
+                      <span>超里程费用:</span>
+                      <span className="font-medium">¥{priceInfo.priceSnapshot.distanceCharge}</span>
+                    </div>}
+                  {priceInfo.priceSnapshot.nightSurcharge > 0 && <div className="flex justify-between">
+                      <span>夜间加价:</span>
+                      <span className="font-medium">¥{priceInfo.priceSnapshot.nightSurcharge}</span>
+                    </div>}
+                  <div className="flex justify-between border-t pt-2 mt-2">
+                    <span className="font-medium">总计:</span>
+                    <span className="font-bold text-lg text-blue-600">¥{priceInfo.totalPrice}</span>
+                  </div>
+                </div>
+              </div>}
+            
+            {calculating && <div className="text-center text-gray-500 py-2">
+                正在计算费用...
+              </div>}
 
             {/* 车辆型号 */}
             <div>
