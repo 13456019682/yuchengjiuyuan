@@ -33,6 +33,41 @@
       "title": "虚拟电话过期时间",
       "type": "DateTime",
       "format": "timestamp-ms"
+    },
+    {
+      "name": "base_price",
+      "title": "基础价格",
+      "type": "Number"
+    },
+    {
+      "name": "distance_unit_price",
+      "title": "超里程单价(元/公里)",
+      "type": "Number"
+    },
+    {
+      "name": "free_distance",
+      "title": "免费里程(公里)",
+      "type": "Number"
+    },
+    {
+      "name": "night_surcharge",
+      "title": "夜间加价(元)",
+      "type": "Number"
+    },
+    {
+      "name": "night_start_time",
+      "title": "夜间开始时间",
+      "type": "String"
+    },
+    {
+      "name": "night_end_time",
+      "title": "夜间结束时间",
+      "type": "String"
+    },
+    {
+      "name": "commission_rate",
+      "title": "平台抽成比例",
+      "type": "Number"
     }
   ]
 }

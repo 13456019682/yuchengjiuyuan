@@ -1,12 +1,9 @@
-const cloudbase = require('@cloudbase/node-sdk');
+const cloud = require('wx-server-sdk');
 const crypto = require('crypto');
 
 // 初始化云开发环境
-const app = cloudbase.init({
-  env: process.env.TCB_ENV || cloudbase.getCurrentEnv()
-});
-
-const models = app.models;
+cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
+const db = cloud.database();
 
 /**
  * 生成全局唯一的 call_id

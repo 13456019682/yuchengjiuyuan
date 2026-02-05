@@ -4,6 +4,6 @@
   "description": "获取通话记录列表，支持分页和筛选",
   "main": "index.js",
   "dependencies": {
-    "@cloudbase/node-sdk": "latest"
+    "wx-server-sdk": "~2.6.3"
   }
 }
