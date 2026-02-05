@@ -55,6 +55,89 @@ export default function OwnerOrderDetail(props) {
     }
   };
 
+  // 取消订单处理函数
+  const handleCancelOrder = async () => {
+    if (!orderId) {
+      toast({
+        title: '参数错误',
+        description: '缺少订单ID',
+        variant: 'destructive'
+      });
+      return;
+    }
+    try {
+      // 检查网络连接
+      if (!navigator.onLine) {
+        throw new Error('网络连接异常，请检查网络设置');
+      }
+
+      // 添加超时机制
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('请求超时，请重试')), 10000);
+      });
+      const cancelPromise = props.$w.cloud.callFunction({
+        name: 'update_order_status',
+        data: {
+          orderId: orderId,
+          newStatus: 'cancelled'
+        }
+      });
+
+      // 竞速处理：超时或正常返回
+      const res = await Promise.race([cancelPromise, timeoutPromise]);
+      if (res.result && res.result.success) {
+        // 取消成功
+        toast({
+          title: '取消成功',
+          description: '订单已取消',
+          variant: 'default'
+        });
+
+        // 刷新订单详情
+        fetchOrderDetail();
+      } else {
+        // 云函数返回失败
+        const errorMsg = res.result?.msg || '取消订单失败';
+
+        // 特殊处理：订单已被接单的情况
+        if (errorMsg.includes('已被接单') || errorMsg.includes('无法取消')) {
+          toast({
+            title: '取消失败',
+            description: '该订单已被接单，无法取消',
+            variant: 'destructive'
+          });
+        } else {
+          toast({
+            title: '取消失败',
+            description: errorMsg,
+            variant: 'destructive'
+          });
+        }
+      }
+    } catch (error) {
+      console.error('取消订单失败：', error);
+
+      // 统一网络异常处理
+      let errorTitle = '取消失败';
+      let errorMessage = '网络异常，请重试';
+
+      // 根据错误类型提供具体提示
+      if (error.message.includes('timeout')) {
+        errorMessage = '请求超时，请重试';
+      } else if (error.message.includes('网络连接异常')) {
+        errorMessage = '网络连接异常，请检查网络设置';
+      } else if (error.message.includes('FUNCTION_NOT_FOUND')) {
+        errorTitle = '服务异常';
+        errorMessage = '服务暂不可用，请稍后重试';
+      }
+      toast({
+        title: errorTitle,
+        description: errorMessage,
+        variant: 'destructive'
+      });
+    }
+  };
+
   // 获取订单详情
   const fetchOrderDetail = async () => {
     if (!orderId) {
@@ -358,8 +441,16 @@ export default function OwnerOrderDetail(props) {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-800">订单信息</h2>
-            <div className={`px-3 py-1 rounded-full text-sm font-medium ${order?.orderStatus === 'pending' ? 'bg-amber-100 text-amber-700' : order?.orderStatus === 'rescueing' ? 'bg-blue-100 text-blue-700' : order?.orderStatus === 'completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
-              {ORDER_STATUS_MAP[order?.orderStatus] || '未知状态'}
+            <div className="flex items-center space-x-4">
+              <div className={`px-3 py-1 rounded-full text-sm font-medium ${order?.orderStatus === 'pending' ? 'bg-amber-100 text-amber-700' : order?.orderStatus === 'rescueing' ? 'bg-blue-100 text-blue-700' : order?.orderStatus === 'completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
+                {ORDER_STATUS_MAP[order?.orderStatus] || '未知状态'}
+              </div>
+              
+              {/* 取消订单按钮 - 仅显示在待接单状态 */}
+              {order?.orderStatus === 'pending' && <Button onClick={handleCancelOrder} variant="outline" className="border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700">
+                  <XCircle className="w-4 h-4 mr-2" />
+                  取消订单
+                </Button>}
             </div>
           </div>
 
