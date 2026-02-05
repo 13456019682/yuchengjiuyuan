@@ -67,6 +67,15 @@ export default function OrderCreate(props) {
     if (!validateForm()) return;
     setSubmitting(true);
     try {
+      // 检查网络连接
+      if (!navigator.onLine) {
+        throw new Error('网络连接异常，请检查网络设置');
+      }
+
+      // 添加超时机制
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('请求超时，请重试')), 15000);
+      });
       const orderData = {
         orderId: `order_${Date.now()}`,
         ownerId: props.$w.auth.currentUser?.userId || '',
@@ -77,9 +86,10 @@ export default function OrderCreate(props) {
         createTime: new Date().toLocaleString(),
         updateTime: new Date().toLocaleString()
       };
+
       // 使用数据库直接操作创建订单
       const tcb = await props.$w.cloud.getCloudInstance();
-      const result = await tcb.database().collection('order_info').add({
+      const dbPromise = tcb.database().collection('order_info').add({
         data: {
           order_id: orderData.orderId,
           car_owner_id: orderData.ownerId,
@@ -87,13 +97,15 @@ export default function OrderCreate(props) {
           order_status: orderData.orderStatus,
           create_time: new Date(),
           update_time: new Date(),
-          // 存储其他信息（需要先在数据模型中添加这些字段）
           owner_phone: orderData.ownerPhone,
           owner_address: orderData.ownerAddress,
           car_model: orderData.carModel,
           fault_desc: orderData.faultDesc
         }
       });
+
+      // 竞速处理：超时或正常返回
+      const result = await Promise.race([dbPromise, timeoutPromise]);
       if (result.id) {
         toast({
           title: '下单成功',

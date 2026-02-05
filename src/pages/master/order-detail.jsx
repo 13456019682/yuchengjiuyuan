@@ -68,7 +68,7 @@ export default function OrderDetail(props) {
         name: 'update_order_status',
         data: {
           orderId,
-          targetStatus: 'rescueing'
+          targetStatus: '已接单'
         }
       });
       if (res.result && res.result.success) {
@@ -125,7 +125,7 @@ export default function OrderDetail(props) {
         name: 'update_order_status',
         data: {
           orderId,
-          targetStatus: 'completed'
+          targetStatus: '已完成'
         }
       });
       if (res.result && res.result.success) {
@@ -181,7 +181,7 @@ export default function OrderDetail(props) {
         name: 'update_order_status',
         data: {
           orderId,
-          targetStatus: 'canceled'
+          targetStatus: '已取消'
         }
       });
       if (res.result && res.result.success) {

@@ -13,6 +13,7 @@ import TEST/VALIDATION_REPORT from '../pages/test/validation-report.jsx';
 import TEST/DEPLOY_GUIDE from '../pages/test/deploy-guide.jsx';
 import TEST/CLOUD_FUNCTION-TEST from '../pages/test/cloud-function-test.jsx';
 import TEST/TEST_MANAGEMENT from '../pages/test/test-management.jsx';
+import TEST/TEST_PLATFORM from '../pages/test/test-platform.jsx';
 export const routers = [{
   id: "blank",
   component: BLANK
@@ -58,4 +59,7 @@ export const routers = [{
 }, {
   id: "test/test-management",
   component: TEST/TEST_MANAGEMENT
+}, {
+  id: "test/test-platform",
+  component: TEST/TEST_PLATFORM
 }]

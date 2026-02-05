@@ -92,7 +92,7 @@ export default function OrderWait(props) {
         name: 'update_order_status',
         data: {
           orderId,
-          targetStatus: 'rescueing'
+          targetStatus: '已接单'
         }
       });
       if (res.result && res.result.success) {
