@@ -71,7 +71,7 @@ export default function OrderDetail(props) {
           targetStatus: '已接单'
         }
       });
-      if (res.result && res.result.success) {
+      if (res.result && res.result.isSuccess) {
         toast({
           title: '接单成功',
           description: '您已成功接单，请尽快前往救援地点',
@@ -128,7 +128,7 @@ export default function OrderDetail(props) {
           targetStatus: '已完成'
         }
       });
-      if (res.result && res.result.success) {
+      if (res.result && res.result.isSuccess) {
         toast({
           title: '订单完成',
           description: '恭喜您完成救援任务！',
@@ -184,7 +184,7 @@ export default function OrderDetail(props) {
           targetStatus: '已取消'
         }
       });
-      if (res.result && res.result.success) {
+      if (res.result && res.result.isSuccess) {
         toast({
           title: '订单已取消',
           description: '订单已成功取消',

@@ -178,7 +178,7 @@ export default function TestManagement(props) {
             pageSize: 5
           }
         });
-        if (result.result && result.result.success) {
+        if (result.result && result.result.isSuccess) {
           return {
             success: true,
             message: `获取成功，返回 ${result.result.data?.length || 0} 条待接单订单`
@@ -205,7 +205,7 @@ export default function TestManagement(props) {
             targetStatus: 'rescueing'
           }
         });
-        if (result.result && result.result.success) {
+        if (result.result && result.result.isSuccess) {
           return {
             success: true,
             message: '订单状态更新成功'
@@ -231,7 +231,7 @@ export default function TestManagement(props) {
             limit: 5
           }
         });
-        if (result.result && result.result.success) {
+        if (result.result && result.result.isSuccess) {
           return {
             success: true,
             message: `获取成功，返回 ${result.result.data?.length || 0} 条通话记录`

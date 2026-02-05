@@ -36,7 +36,7 @@ export default function CloudFunctionTest(props) {
         setResult(res.result);
 
         // 判断是否成功
-        const isSuccess = res.result.success === true;
+        const isSuccess = res.result.isSuccess === true;
         const hasData = res.result.data && Array.isArray(res.result.data) && res.result.data.length > 0;
         if (isSuccess) {
           toast({
@@ -129,7 +129,7 @@ export default function CloudFunctionTest(props) {
                 <div>
                   <div className="font-semibold text-emerald-800">云函数调用成功</div>
                   <div className="text-sm text-emerald-700">
-                    {result.success === true ? '返回 success: true' : '返回 success: false'}
+                    {result.isSuccess === true ? '返回 isSuccess: true' : '返回 isSuccess: false'}
                   </div>
                 </div>
               </div>
@@ -139,10 +139,10 @@ export default function CloudFunctionTest(props) {
                 <h3 className="font-semibold text-blue-800 mb-3">数据检查结果：</h3>
                 <div className="space-y-2">
                   <div className="flex items-center">
-                    {result.success === true ? <CheckCircle className="w-5 h-5 mr-2 text-emerald-600" /> : <XCircle className="w-5 h-5 mr-2 text-red-600" />}
+                    {result.isSuccess === true ? <CheckCircle className="w-5 h-5 mr-2 text-emerald-600" /> : <XCircle className="w-5 h-5 mr-2 text-red-600" />}
                     <span className="text-sm text-slate-700">
-                      云函数调用是否成功：<strong className={result.success === true ? 'text-emerald-600' : 'text-red-600'}>
-                        {result.success === true ? '是' : '否'}
+                      云函数调用是否成功：<strong className={result.isSuccess === true ? 'text-emerald-600' : 'text-red-600'}>
+                        {result.isSuccess === true ? '是' : '否'}
                       </strong>
                     </span>
                   </div>

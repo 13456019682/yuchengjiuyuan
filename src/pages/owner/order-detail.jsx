@@ -85,7 +85,7 @@ export default function OwnerOrderDetail(props) {
 
       // 竞速处理：超时或正常返回
       const res = await Promise.race([cancelPromise, timeoutPromise]);
-      if (res.result && res.result.success) {
+      if (res.result && res.result.isSuccess) {
         // 取消成功
         toast({
           title: '取消成功',
@@ -206,8 +206,8 @@ export default function OwnerOrderDetail(props) {
           callStatus: filter.callStatus || null
         }
       });
-      if (res.result?.success) {
-        setCallLogs(res.result.result || []);
+      if (res.result?.isSuccess) {
+        setCallLogs(res.result.data || []);
         // 计算总页数：向上取整，避免出现半页数据
         setTotalPages(Math.ceil((res.result.total || 0) / limit));
       } else {
@@ -303,7 +303,7 @@ export default function OwnerOrderDetail(props) {
           fileName: `通话记录_${orderId}`
         }
       });
-      if (res.result && res.result.success) {
+      if (res.result && res.result.isSuccess) {
         const {
           downloadUrl,
           fileID

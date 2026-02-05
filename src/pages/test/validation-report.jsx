@@ -242,7 +242,7 @@ export default function ValidationReport(props) {
         name: 'get_pending_orders',
         data: {}
       });
-      if (res.result && res.result.success) {
+      if (res.result && res.result.isSuccess) {
         results.push({
           name: '待接单订单查询',
           status: 'success',

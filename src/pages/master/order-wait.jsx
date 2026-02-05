@@ -27,7 +27,7 @@ export default function OrderWait(props) {
           pageSize: 10
         }
       });
-      if (res.result && res.result.success) {
+      if (res.result && res.result.isSuccess) {
         const newOrderList = res.result.data || [];
         setOrderList(newOrderList);
 
@@ -95,7 +95,7 @@ export default function OrderWait(props) {
           targetStatus: '已接单'
         }
       });
-      if (res.result && res.result.success) {
+      if (res.result && res.result.isSuccess) {
         toast({
           title: '接单成功',
           description: '您已成功接单，请尽快前往救援地点',

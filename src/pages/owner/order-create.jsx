@@ -64,7 +64,7 @@ export default function OrderCreate(props) {
           serviceTime: new Date().toISOString()
         }
       });
-      if (result.success) {
+      if (result.isSuccess) {
         setPriceInfo(result.data);
       } else {
         toast({
