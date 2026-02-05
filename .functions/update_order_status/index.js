@@ -27,7 +27,7 @@ exports.main = async (event, context) => {
     // 1. 必传参数校验
     if (!orderId || !targetStatus) {
       return {
-        success: false,
+        isSuccess: false,
         msg: '订单ID和目标状态不能为空'
       };
     }

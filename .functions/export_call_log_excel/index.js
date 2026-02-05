@@ -46,7 +46,7 @@ exports.main = async (event, context) => {
     });
 
     return {
-      success: true,
+      isSuccess: true,
       msg: 'Excel生成并上传成功',
       data: {
         downloadUrl: downloadRes.fileList[0].tempFileURL,
@@ -56,7 +56,7 @@ exports.main = async (event, context) => {
   } catch (err) {
     console.error('Excel导出失败：', err);
     return {
-      success: false,
+      isSuccess: false,
       msg: 'Excel导出失败',
       error: err.message
     };
