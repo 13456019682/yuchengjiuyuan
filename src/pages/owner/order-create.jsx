@@ -131,6 +131,23 @@ export default function OrderCreate(props) {
         updateTime: new Date().toLocaleString()
       };
 
+      // 先调用计价函数获取价格信息
+      let priceInfo = null;
+      if (formData.rescueType) {
+        const priceResult = await props.$w.cloud.callFunction({
+          name: 'calculate_price',
+          data: {
+            businessTypes: [formData.rescueType],
+            distance: formData.distance || 0,
+            isNight: formData.isNight || false,
+            serviceTime: new Date().toISOString()
+          }
+        });
+        if (priceResult.result) {
+          priceInfo = priceResult.result;
+        }
+      }
+
       // 使用数据库直接操作创建订单
       const tcb = await props.$w.cloud.getCloudInstance();
       const dbPromise = tcb.database().collection('order_info').add({
@@ -142,9 +159,18 @@ export default function OrderCreate(props) {
           create_time: new Date(),
           update_time: new Date(),
           owner_phone: orderData.ownerPhone,
-          owner_address: orderData.ownerAddress,
+          location: orderData.ownerAddress,
           car_model: orderData.carModel,
-          fault_desc: orderData.faultDesc
+          description: orderData.faultDesc,
+          payment_status: '未支付',
+          base_price: priceInfo?.basePrice || 0,
+          extra_charges: priceInfo?.priceSnapshot?.distanceCharge || 0,
+          total_price: priceInfo?.totalPrice || 0,
+          price_snapshot: priceInfo?.priceSnapshot || {},
+          distance: formData.distance || 0,
+          is_night_service: formData.isNight || false,
+          platform_commission: 0,
+          mechanic_income: 0
         }
       });
 
