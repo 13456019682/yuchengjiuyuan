@@ -11,7 +11,7 @@ exports.main = async (event, context) => {
     const { data, header, fileName } = event;
     if (!data || !data.length || !header) {
       return {
-        success: false,
+        isSuccess: false,
         msg: '无有效导出数据'
       };
     }

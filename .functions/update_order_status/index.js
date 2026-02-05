@@ -85,7 +85,7 @@ exports.main = async (event, context) => {
     if (targetStatus === ORDER_STATUS.CANCELED && currentStatus === ORDER_STATUS.PENDING) {
       if (openid !== orderOwnerId && userRole !== 'admin') {
         return {
-          success: false,
+          isSuccess: false,
           msg: '仅订单创建者可取消待接单订单'
         };
       }
@@ -107,13 +107,13 @@ exports.main = async (event, context) => {
     });
 
     return {
-      success: true,
+      isSuccess: true,
       msg: '订单状态更新成功'
     };
   } catch (err) {
     console.error('订单状态更新失败：', err);
     return {
-      success: false,
+      isSuccess: false,
       msg: '订单状态更新失败',
       error: err.message
     };

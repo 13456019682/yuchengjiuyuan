@@ -58,7 +58,7 @@ exports.main = async (event) => {
     
     if (availableMechanics.length === 0) {
       return {
-        success: true,
+        isSuccess: true,
         data: {
           dispatched: false,
           message: '当前无可用师傅',

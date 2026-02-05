@@ -69,7 +69,7 @@ exports.main = async (event) => {
     const mechanicIncome = totalPrice - platformCommission;
     
     return {
-      success: true,
+      isSuccess: true,
       data: {
         basePrice,
         extraCharges,

@@ -155,7 +155,7 @@ exports.main = async (event, context) => {
     // 判断是否为数据校验失败
     if (error.message && error.message.includes('校验')) {
       return {
-        success: false,
+        isSuccess: false,
         code: 500,
         msg: '数据校验失败：' + error.message,
         error: error.message
