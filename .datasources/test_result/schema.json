@@ -1,0 +1,62 @@
+{
+  "name": "test_result",
+  "title": "测试结果",
+  "schemas": [
+    {
+      "name": "caseId",
+      "title": "测试用例ID",
+      "type": "String"
+    },
+    {
+      "name": "module",
+      "title": "所属模块",
+      "type": "String"
+    },
+    {
+      "name": "step",
+      "title": "测试步骤",
+      "type": "String"
+    },
+    {
+      "name": "expected",
+      "title": "预期结果",
+      "type": "String"
+    },
+    {
+      "name": "actual",
+      "title": "实际结果",
+      "type": "String"
+    },
+    {
+      "name": "pass",
+      "title": "是否通过",
+      "type": "Boolean"
+    },
+    {
+      "name": "failReason",
+      "title": "失败原因",
+      "type": "String"
+    },
+    {
+      "name": "executor",
+      "title": "执行人",
+      "type": "String"
+    },
+    {
+      "name": "execTime",
+      "title": "执行时间",
+      "type": "DateTime",
+      "format": "timestamp-ms"
+    },
+    {
+      "name": "severity",
+      "title": "严重级别",
+      "type": "String"
+    },
+    {
+      "name": "status",
+      "title": "状态",
+      "type": "String"
+    }
+  ]
+}
