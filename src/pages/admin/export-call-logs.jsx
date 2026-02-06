@@ -54,7 +54,7 @@ export default function ExportCallLogs(props) {
         // 查询通话记录
         const result = await tcb.database().collection('call_logs').where(whereCondition).orderBy('call_start_time', 'desc').limit(1000).get();
         return {
-          success: true,
+          isSuccess: true,
           data: result.data || [],
           total: result.data.length
         };
@@ -62,7 +62,7 @@ export default function ExportCallLogs(props) {
 
       // 竞速处理：超时或正常返回
       const res = await Promise.race([dbPromise, timeoutPromise]);
-      if (res.success) {
+      if (res.isSuccess) {
         setCallLogs(res.data || []);
       } else {
         toast({
@@ -160,13 +160,13 @@ export default function ExportCallLogs(props) {
         link.click();
         document.body.removeChild(link);
         return {
-          success: true,
+          isSuccess: true,
           downloadUrl: url,
           fileID: `file_${Date.now()}`
         };
       };
       const result = exportToExcel(callLogs, header, `通话记录_${new Date().getTime()}`);
-      if (result.success) {
+      if (result.isSuccess) {
         toast({
           title: '导出成功',
           description: 'CSV文件已生成并开始下载',
