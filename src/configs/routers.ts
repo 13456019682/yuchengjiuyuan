@@ -15,6 +15,7 @@ import TEST/CLOUD_FUNCTION-TEST from '../pages/test/cloud-function-test.jsx';
 import TEST/TEST_MANAGEMENT from '../pages/test/test-management.jsx';
 import TEST/TEST_PLATFORM from '../pages/test/test-platform.jsx';
 import TEST/PRICE_TEST from '../pages/test/price-test.jsx';
+import TEST/DEPLOY_VERIFICATION from '../pages/test/deploy-verification.jsx';
 export const routers = [{
   id: "blank",
   component: BLANK
@@ -66,4 +67,7 @@ export const routers = [{
 }, {
   id: "test/price-test",
   component: TEST/PRICE_TEST
+}, {
+  id: "test/deploy-verification",
+  component: TEST/DEPLOY_VERIFICATION
 }]

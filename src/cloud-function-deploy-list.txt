@@ -1,0 +1,46 @@
+云函数部署清单
+===================
+
+需要部署的7个云函数：
+
+1. get_pending_orders
+   - 功能：获取待接单订单列表
+   - 依赖：wx-server-sdk
+   - 优先级：高
+
+2. update_order_status
+   - 功能：更新订单状态（接单/完成/取消）
+   - 依赖：wx-server-sdk
+   - 优先级：高
+
+3. create_call_log
+   - 功能：创建通话记录
+   - 依赖：wx-server-sdk
+   - 优先级：高
+
+4. get_call_logs
+   - 功能：获取通话记录列表
+   - 依赖：wx-server-sdk
+   - 优先级：中
+
+5. export_call_log_excel
+   - 功能：导出通话记录为Excel
+   - 依赖：wx-server-sdk, xlsx
+   - 优先级：中
+
+6. calculate_price
+   - 功能：自动计价
+   - 依赖：wx-server-sdk
+   - 优先级：中
+
+7. auto_dispatch
+   - 功能：阶梯派单
+   - 依赖：wx-server-sdk
+   - 优先级：中
+
+部署步骤：
+1. 在云开发控制台创建云函数
+2. 上传对应的index.js和package.json文件
+3. 设置函数入口为index.main
+4. 选择"上传并部署：云端安装依赖"
+5. 等待部署完成
